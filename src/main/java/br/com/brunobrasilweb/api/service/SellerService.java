@@ -39,9 +39,7 @@ public class SellerService {
 		Seller existingSeller = repository.findById(id)
 				.orElseThrow(() -> new SellerException("Seller with id " + id + " does not exist"));
 
-		Seller entity = request.toEntity()
-				.withId(id)
-				.withRegistration(existingSeller.getRegistration());
+		Seller entity = request.toEntity().withId(id).withRegistration(existingSeller.getRegistration());
 
 		Seller updatedEntity = repository.save(entity);
 
@@ -65,7 +63,8 @@ public class SellerService {
 	private String registration(TypeContract typeContract) {
 		Optional<Seller> last = repository.findTopByOrderByIdDesc();
 
-        return last.map(seller -> SellerUtil.generateRegistration(seller.getId(), typeContract)).orElseGet(() -> SellerUtil.generateRegistration(1L, typeContract));
-    }
+		return last.map(seller -> SellerUtil.generateRegistration(seller.getId(), typeContract))
+				.orElseGet(() -> SellerUtil.generateRegistration(1L, typeContract));
+	}
 
 }

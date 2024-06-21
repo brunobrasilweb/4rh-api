@@ -30,94 +30,100 @@ import java.util.Optional;
 @ExtendWith(MockitoExtension.class)
 class SellerServiceTest {
 
-    @Mock
-    private SellerRepository repository;
+	@Mock
+	private SellerRepository repository;
 
-    @InjectMocks
-    private SellerService service;
+	@InjectMocks
+	private SellerService service;
 
-    private Seller seller;
-    private Seller last;
-    private SellerRequest request;
-    private SellerResponse response;
+	private Seller seller;
 
-    @BeforeEach
-    void setUp() {
-        seller = Seller.of(2L, "2-PJ", "Jose", LocalDate.now(), "04293373000159", "jose@teste.com", TypeContract.PJ, new Filial());
-        request = SellerRequest.of("Jose", LocalDate.now(), "04293373000159", "jose@teste.com", TypeContract.PJ.getValue(), 1L);
-        response = SellerResponse.of(2L, "2-PJ", "Jose", LocalDate.now(), "04293373000159", "jose@teste.com", TypeContract.PJ,  new FilialResponse());
-        last = Seller.of(1L, "1-PJ", "Jose Leite", LocalDate.now(), "04293373000159", "jose@teste.com", TypeContract.PJ, new Filial());
-    }
+	private Seller last;
 
-    @Test
-    void testPageable() {
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<Seller> sellerPage = new PageImpl<>(Arrays.asList(seller));
-        when(repository.findAll(pageable)).thenReturn(sellerPage);
+	private SellerRequest request;
 
-        Page<SellerResponse> result = service.pageable(pageable);
+	private SellerResponse response;
 
-        assertEquals(1, result.getTotalElements());
-        verify(repository, times(1)).findAll(pageable);
-    }
+	@BeforeEach
+	void setUp() {
+		seller = Seller.of(2L, "2-PJ", "Jose", LocalDate.now(), "04293373000159", "jose@teste.com", TypeContract.PJ,
+				new Filial());
+		request = SellerRequest.of("Jose", LocalDate.now(), "04293373000159", "jose@teste.com",
+				TypeContract.PJ.getValue(), 1L);
+		response = SellerResponse.of(2L, "2-PJ", "Jose", LocalDate.now(), "04293373000159", "jose@teste.com",
+				TypeContract.PJ, new FilialResponse());
+		last = Seller.of(1L, "1-PJ", "Jose Leite", LocalDate.now(), "04293373000159", "jose@teste.com", TypeContract.PJ,
+				new Filial());
+	}
 
-    @Test
-    void testCreate() {
-        when(repository.save(any())).thenReturn(seller);
-        when(repository.findTopByOrderByIdDesc()).thenReturn(Optional.of(last));
+	@Test
+	void testPageable() {
+		Pageable pageable = PageRequest.of(0, 10);
+		Page<Seller> sellerPage = new PageImpl<>(Arrays.asList(seller));
+		when(repository.findAll(pageable)).thenReturn(sellerPage);
 
-        SellerResponse result = service.create(request);
+		Page<SellerResponse> result = service.pageable(pageable);
 
-        assertNotNull(result);
-        assertEquals(response.getRegistration(), result.getRegistration());
-        verify(repository, times(1)).save(any());
-    }
+		assertEquals(1, result.getTotalElements());
+		verify(repository, times(1)).findAll(pageable);
+	}
 
-    @Test
-    void testUpdate() {
-        when(repository.findById(1L)).thenReturn(Optional.of(seller));
-        when(repository.save(any())).thenReturn(seller);
+	@Test
+	void testCreate() {
+		when(repository.save(any())).thenReturn(seller);
+		when(repository.findTopByOrderByIdDesc()).thenReturn(Optional.of(last));
 
-        SellerResponse result = service.update(1L, request);
+		SellerResponse result = service.create(request);
 
-        assertNotNull(result);
-        assertEquals(response.getRegistration(), result.getRegistration());
-        verify(repository, times(1)).findById(1L);
-        verify(repository, times(1)).save(any());
-    }
+		assertNotNull(result);
+		assertEquals(response.getRegistration(), result.getRegistration());
+		verify(repository, times(1)).save(any());
+	}
 
-    @Test
-    void testUpdateSellerNotFound() {
-        when(repository.findById(1L)).thenReturn(Optional.empty());
+	@Test
+	void testUpdate() {
+		when(repository.findById(1L)).thenReturn(Optional.of(seller));
+		when(repository.save(any())).thenReturn(seller);
 
-        SellerException exception = assertThrows(SellerException.class, () -> {
-            service.update(1L, request);
-        });
+		SellerResponse result = service.update(1L, request);
 
-        assertEquals("Seller with id 1 does not exist", exception.getMessage());
-        verify(repository, times(1)).findById(1L);
-        verify(repository, times(0)).save(any(Seller.class));
-    }
+		assertNotNull(result);
+		assertEquals(response.getRegistration(), result.getRegistration());
+		verify(repository, times(1)).findById(1L);
+		verify(repository, times(1)).save(any());
+	}
 
-    @Test
-    void testDelete() {
-        doNothing().when(repository).deleteById(1L);
+	@Test
+	void testUpdateSellerNotFound() {
+		when(repository.findById(1L)).thenReturn(Optional.empty());
 
-        service.delete(1L);
+		SellerException exception = assertThrows(SellerException.class, () -> {
+			service.update(1L, request);
+		});
 
-        verify(repository, times(1)).deleteById(1L);
-    }
+		assertEquals("Seller with id 1 does not exist", exception.getMessage());
+		verify(repository, times(1)).findById(1L);
+		verify(repository, times(0)).save(any(Seller.class));
+	}
 
-    @Test
-    void testById() {
-        when(repository.findById(2L)).thenReturn(Optional.of(seller));
+	@Test
+	void testDelete() {
+		doNothing().when(repository).deleteById(1L);
 
-        SellerResponse result = service.byId(2L);
+		service.delete(1L);
 
-        assertNotNull(result);
-        assertEquals(response, result);
-        verify(repository, times(1)).findById(2L);
-    }
+		verify(repository, times(1)).deleteById(1L);
+	}
+
+	@Test
+	void testById() {
+		when(repository.findById(2L)).thenReturn(Optional.of(seller));
+
+		SellerResponse result = service.byId(2L);
+
+		assertNotNull(result);
+		assertEquals(response, result);
+		verify(repository, times(1)).findById(2L);
+	}
 
 }
-

@@ -50,9 +50,9 @@ public class Seller {
 		return this;
 	}
 
-    public Seller withRegistration(String registration) {
+	public Seller withRegistration(String registration) {
 		this.registration = registration;
 		return this;
-    }
+	}
 
 }

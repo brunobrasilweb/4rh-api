@@ -34,90 +34,85 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(SellerController.class)
 public class SellerControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+	@Autowired
+	private MockMvc mockMvc;
 
-    @MockBean
-    private SellerService service;
+	@MockBean
+	private SellerService service;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+	@Autowired
+	private ObjectMapper objectMapper;
 
-    private SellerRequest request;
-    private SellerResponse response;
+	private SellerRequest request;
 
-    @BeforeEach
-    public void setup() {
-        MockitoAnnotations.openMocks(this);
+	private SellerResponse response;
 
-        request = SellerRequest.of("Jose", LocalDate.now(), "04293373000159", "jose@teste.com", TypeContract.PJ.getValue(), 1L);
-    }
+	@BeforeEach
+	public void setup() {
+		MockitoAnnotations.openMocks(this);
 
-    @Test
-    public void testGetPageable() throws Exception {
-        Page<SellerResponse> page = new PageImpl<>(Collections.emptyList());
-        when(service.pageable(any(Pageable.class))).thenReturn(page);
+		request = SellerRequest.of("Jose", LocalDate.now(), "04293373000159", "jose@teste.com",
+				TypeContract.PJ.getValue(), 1L);
+	}
 
-        mockMvc.perform(get("/seller"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content").isEmpty());
-    }
+	@Test
+	public void testGetPageable() throws Exception {
+		Page<SellerResponse> page = new PageImpl<>(Collections.emptyList());
+		when(service.pageable(any(Pageable.class))).thenReturn(page);
 
-    @Test
-    public void testCreate() throws Exception {
-        when(service.create(any(SellerRequest.class))).thenReturn(response);
+		mockMvc.perform(get("/seller")).andExpect(status().isOk()).andExpect(jsonPath("$.content").isEmpty());
+	}
 
-        mockMvc.perform(post("/seller")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
-    }
+	@Test
+	public void testCreate() throws Exception {
+		when(service.create(any(SellerRequest.class))).thenReturn(response);
 
-    @Test
-    public void testCreateInvalid() throws Exception {
-        request.setFilialId(null);
+		mockMvc.perform(
+				post("/seller").contentType("application/json").content(objectMapper.writeValueAsString(request)))
+				.andExpect(status().isOk());
+	}
 
-        when(service.create(any(SellerRequest.class))).thenReturn(response);
+	@Test
+	public void testCreateInvalid() throws Exception {
+		request.setFilialId(null);
 
-        mockMvc.perform(post("/seller")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().is4xxClientError());
-    }
+		when(service.create(any(SellerRequest.class))).thenReturn(response);
 
-    @Test
-    public void testUpdate() throws Exception {
-        when(service.update(any(Long.class), any(SellerRequest.class))).thenReturn(response);
+		mockMvc.perform(
+				post("/seller").contentType("application/json").content(objectMapper.writeValueAsString(request)))
+				.andExpect(status().is4xxClientError());
+	}
 
-        mockMvc.perform(put("/seller/1")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk());
-    }
+	@Test
+	public void testUpdate() throws Exception {
+		when(service.update(any(Long.class), any(SellerRequest.class))).thenReturn(response);
 
-    @Test
-    public void testUpdateInvalid() throws Exception {
-        request.setFilialId(null);
+		mockMvc.perform(
+				put("/seller/1").contentType("application/json").content(objectMapper.writeValueAsString(request)))
+				.andExpect(status().isOk());
+	}
 
-        when(service.update(any(Long.class), any(SellerRequest.class))).thenReturn(response);
+	@Test
+	public void testUpdateInvalid() throws Exception {
+		request.setFilialId(null);
 
-        mockMvc.perform(put("/seller/1")
-                        .contentType("application/json")
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().is4xxClientError());
-    }
+		when(service.update(any(Long.class), any(SellerRequest.class))).thenReturn(response);
 
-    @Test
-    public void testDelete() throws Exception {
-        mockMvc.perform(delete("/seller/1"))
-                .andExpect(status().isOk());
-    }
+		mockMvc.perform(
+				put("/seller/1").contentType("application/json").content(objectMapper.writeValueAsString(request)))
+				.andExpect(status().is4xxClientError());
+	}
 
-    @Test
-    public void testById() throws Exception {
-        when(service.byId(any(Long.class))).thenReturn(response);
+	@Test
+	public void testDelete() throws Exception {
+		mockMvc.perform(delete("/seller/1")).andExpect(status().isOk());
+	}
 
-        mockMvc.perform(get("/seller/1"))
-                .andExpect(status().isOk());
-    }
+	@Test
+	public void testById() throws Exception {
+		when(service.byId(any(Long.class))).thenReturn(response);
+
+		mockMvc.perform(get("/seller/1")).andExpect(status().isOk());
+	}
+
 }
